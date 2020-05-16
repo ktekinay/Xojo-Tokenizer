@@ -7,6 +7,7 @@ Window=Window1;Window1.xojo_window;&h000000001ACFE7FF;&h0000000000000000;false
 MenuBar=MainMenuBar;MainMenuBar.xojo_menu;&h00000000173AF7FF;&h0000000000000000;false
 BuildSteps=Build Automation;Build Automation.xojo_code;&h000000003ABA67FF;&h0000000000000000;false
 Module=M_Token;M_Token.xojo_code;&h0000000039E237FF;&h0000000000000000;false
+Class=Token;M_Token/Token.xojo_code;&h0000000048B08FFF;&h0000000039E237FF;false
 DefaultWindow=Window1
 AppMenuBar=MainMenuBar
 MajorVersion=1
