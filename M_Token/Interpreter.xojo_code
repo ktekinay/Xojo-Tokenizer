@@ -3,9 +3,7 @@ Protected Class Interpreter
 Implements M_Token.InterpreterInterface
 	#tag Method, Flags = &h0
 		Sub Interpret(tokens() As M_Token.Token, mb As MemoryBlock, currentBytePos As Integer)
-		  
-		  
-		  
+		  RaiseEvent Interpret( tokens, mb, currentBytePos )
 		End Sub
 	#tag EndMethod
 

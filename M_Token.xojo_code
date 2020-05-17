@@ -28,7 +28,7 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token) As M_Token.Token()
+		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  var tokens() as M_Token.Token
 		  
 		  var mbSize as integer = mb.Size
@@ -50,7 +50,9 @@ Protected Module M_Token
 		    for each parser as M_Token.ParserDelegate in parsers
 		      currentToken = parser.Invoke( mb, p, position, context )
 		      if currentToken isa object then
-		        tokens.AddRow currentToken
+		        if not ( currentToken isa M_Token.IgnoreThisToken ) then
+		          tokens.AddRow currentToken
+		        end if
 		        exit for parser
 		      end if
 		      position = startingPos // The next parser must start at the same place
@@ -71,10 +73,15 @@ Protected Module M_Token
 		        context = blockTokenStack( blockTokenStack.LastRowIndex )
 		      end if
 		      
+		      if interpreter isa object then
+		        interpreter.Interpret( tokens, mb, position )
+		      end if
+		      
 		    elseif currentToken isa M_Token.BeginBlockToken then
 		      blockTokenStack.AddRow M_Token.BeginBlockToken( currentToken )
 		      blockTokenStackIndex = blockTokenStackIndex + 1
 		      context = M_Token.BeginBlockToken( currentToken )
+		      
 		    end if
 		  wend
 		  
