@@ -16,7 +16,9 @@ Inherits M_Token.Token
 
 
 	#tag Method, Flags = &h0
-		Shared Function ParseInteger(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
+		Shared Function ParseInteger(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken) As M_Token.Token
+		  #pragma unused context
+		  
 		  const kZero as byte = 48
 		  const kNine as byte = 57
 		  const kHyphen as byte = 45

@@ -39,13 +39,16 @@ Protected Module M_Token
 		  end if
 		  
 		  var currentToken as M_Token.Token = startDocumentToken
+		  var blockTokenStack() as M_Token.BeginBlockToken
+		  var blockTokenStackIndex as integer = -1
+		  var context as M_Token.BeginBlockToken
 		  
 		  while position < mbSize 
 		    var startingPos as integer = position
 		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers
 		    
 		    for each parser as M_Token.ParserDelegate in parsers
-		      currentToken = parser.Invoke( mb, p, position )
+		      currentToken = parser.Invoke( mb, p, position, context )
 		      if currentToken isa object then
 		        tokens.AddRow currentToken
 		        exit for parser
@@ -54,7 +57,24 @@ Protected Module M_Token
 		    next
 		    
 		    if currentToken is nil then
-		      raise new InvalidTokenException( position )
+		      raise new InvalidTokenException( startingPos )
+		    end if
+		    
+		    if currentToken isa M_Token.EndBlockToken then
+		      if blockTokenStackIndex = -1 then
+		        raise new InvalidTokenException( startingPos )
+		      end if
+		      blockTokenStackIndex = blockTokenStackIndex - 1
+		      if blockTokenStackIndex = -1 then
+		        context = nil
+		      else
+		        context = blockTokenStack( blockTokenStack.LastRowIndex )
+		      end if
+		      
+		    elseif currentToken isa M_Token.BeginBlockToken then
+		      blockTokenStack.AddRow M_Token.BeginBlockToken( currentToken )
+		      blockTokenStackIndex = blockTokenStackIndex + 1
+		      context = M_Token.BeginBlockToken( currentToken )
 		    end if
 		  wend
 		  
@@ -64,7 +84,7 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h1
-		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
+		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken) As M_Token.Token
 	#tag EndDelegateDeclaration
 
 
