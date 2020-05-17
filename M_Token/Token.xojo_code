@@ -6,9 +6,30 @@ Protected Class Token
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Sub Constructor(bytePos As Integer, value As Variant)
+		  self.BytePosition = bytePos
+		  self.Value = value
+		  
+		End Sub
+	#tag EndMethod
 
-	#tag Hook, Flags = &h0
-		Event GetName(String)
+	#tag Method, Flags = &h0
+		Function GetNextTokenParsers() As M_Token.ParserDelegate()
+		  var parsers() as M_Token.ParserDelegate
+		  RaiseEvent GetNextTokenParsers( parsers )
+		  return parsers
+		  
+		End Function
+	#tag EndMethod
+
+
+	#tag Hook, Flags = &h0, Description = 476574207468652068756D616E2D7265616461626C65206E616D6520666F72207468697320746F6B656E2C20652E672E2C2022426567696E446F63756D656E74222C202256616C7565222C20222B534551222C20222D534551222E
+		Event GetName() As String
+	#tag EndHook
+
+	#tag Hook, Flags = &h0, Description = 52657475726E20616E206172726179206F662050617273657244656C65676174652E2054686520706172736572732077696C6C206265207472696564206F6E207468652073747265616D20617420746861742063757272656E7420706F736974696F6E20696E206F7264657220756E74696C206120546F6B656E2069732072657475726E65642C20616E64207468617420746F6B656E2077696C6C2062652061736B656420666F72206974206E65787420746F6B656E20706172736572732E
+		Event GetNextTokenParsers(parsers() As M_Token.ParserDelegate)
 	#tag EndHook
 
 
