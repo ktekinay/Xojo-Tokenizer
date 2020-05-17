@@ -28,7 +28,7 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
+		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  var tokens() as M_Token.Token
 		  
 		  var mbSize as integer = mb.Size
@@ -38,17 +38,19 @@ Protected Module M_Token
 		    position = 0
 		  end if
 		  
+		  const kStartingBlockStackLastRow as integer = 99
+		  
 		  var currentToken as M_Token.Token = startDocumentToken
-		  var blockTokenStack() as M_Token.BeginBlockToken
+		  var blockTokenStack( kStartingBlockStackLastRow ) as M_Token.BeginBlockToken
 		  var blockTokenStackIndex as integer = -1
 		  var context as M_Token.BeginBlockToken
 		  
 		  while position < mbSize 
 		    var startingPos as integer = position
-		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers
+		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers( settings )
 		    
 		    for each parser as M_Token.ParserDelegate in parsers
-		      currentToken = parser.Invoke( mb, p, position, context )
+		      currentToken = parser.Invoke( mb, p, position, context, settings )
 		      if currentToken isa object then
 		        if not ( currentToken isa M_Token.IgnoreThisToken ) then
 		          tokens.AddRow currentToken
@@ -70,7 +72,7 @@ Protected Module M_Token
 		      if blockTokenStackIndex = -1 then
 		        context = nil
 		      else
-		        context = blockTokenStack( blockTokenStack.LastRowIndex )
+		        context = blockTokenStack( blockTokenStackIndex )
 		      end if
 		      
 		      if interpreter isa object then
@@ -78,8 +80,12 @@ Protected Module M_Token
 		      end if
 		      
 		    elseif currentToken isa M_Token.BeginBlockToken then
-		      blockTokenStack.AddRow M_Token.BeginBlockToken( currentToken )
 		      blockTokenStackIndex = blockTokenStackIndex + 1
+		      if blockTokenStackIndex >= blockTokenStack.LastRowIndex then
+		        blockTokenStack.ResizeTo blockTokenStack.Count * 2
+		      end if
+		      
+		      blockTokenStack( blockTokenStackIndex ) = M_Token.BeginBlockToken( currentToken )
 		      context = M_Token.BeginBlockToken( currentToken )
 		      
 		    end if
@@ -94,8 +100,15 @@ Protected Module M_Token
 		End Function
 	#tag EndMethod
 
+	#tag Method, Flags = &h1
+		Protected Function Parse(mb As MemoryBlock, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
+		  var position as integer
+		  return Parse( mb, position, startDocumentToken, settings, interpreter )
+		End Function
+	#tag EndMethod
+
 	#tag DelegateDeclaration, Flags = &h1
-		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken) As M_Token.Token
+		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
 	#tag EndDelegateDeclaration
 
 

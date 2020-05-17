@@ -10,8 +10,8 @@ Inherits TestController
 		  'group = New XojoUnitTests(Self, "Assertion")
 		  'group = New XojoUnitFailTests(Self, "Always Fail")
 		  
-		  group = new DoubleTokenizerTests( self, "DoubleTokenizer" )
-		  group = new IntegerTokenizerTests( self, "IntegerTokenizer" )
+		  group = new NumberTokenizerTests( self, "NumberTokenizer" )
+		  
 		End Sub
 	#tag EndEvent
 

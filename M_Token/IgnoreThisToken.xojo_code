@@ -1,4 +1,5 @@
-#tag Interface
-Protected Interface IgnoreThisToken
-End Interface
-#tag EndInterface
+#tag Class
+Protected Class IgnoreThisToken
+Inherits M_Token.Token
+End Class
+#tag EndClass
