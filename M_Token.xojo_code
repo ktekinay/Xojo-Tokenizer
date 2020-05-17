@@ -85,6 +85,10 @@ Protected Module M_Token
 		    end if
 		  wend
 		  
+		  if interpreter isa object then
+		    interpreter.Interpret tokens, mb, position
+		  end if
+		  
 		  return tokens
 		  
 		End Function
