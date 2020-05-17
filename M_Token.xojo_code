@@ -29,6 +29,13 @@ Protected Module M_Token
 
 	#tag Method, Flags = &h1
 		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
+		  //**********************************************************/
+		  //*                                                        */
+		  //*             This is the main parse method              */
+		  //*                                                        */
+		  //**********************************************************/
+		  
+		  
 		  var tokens() as M_Token.Token
 		  
 		  var mbSize as integer = mb.Size
@@ -44,6 +51,7 @@ Protected Module M_Token
 		  var blockTokenStack( kStartingBlockStackLastRow ) as M_Token.BeginBlockToken
 		  var blockTokenStackIndex as integer = -1
 		  var context as M_Token.BeginBlockToken
+		  var beginBlockIndexes( kStartingBlockStackLastRow ) as integer
 		  
 		  while position < mbSize 
 		    var startingPos as integer = position
@@ -68,6 +76,11 @@ Protected Module M_Token
 		      if blockTokenStackIndex = -1 then
 		        raise new InvalidTokenException( startingPos )
 		      end if
+		      
+		      if interpreter isa object then
+		        interpreter.Interpret( tokens, beginBlockIndexes( blockTokenStackIndex ), mb, position )
+		      end if
+		      
 		      blockTokenStackIndex = blockTokenStackIndex - 1
 		      if blockTokenStackIndex = -1 then
 		        context = nil
@@ -75,24 +88,22 @@ Protected Module M_Token
 		        context = blockTokenStack( blockTokenStackIndex )
 		      end if
 		      
-		      if interpreter isa object then
-		        interpreter.Interpret( tokens, mb, position )
-		      end if
-		      
 		    elseif currentToken isa M_Token.BeginBlockToken then
 		      blockTokenStackIndex = blockTokenStackIndex + 1
 		      if blockTokenStackIndex >= blockTokenStack.LastRowIndex then
 		        blockTokenStack.ResizeTo blockTokenStack.Count * 2
+		        beginBlockIndexes.ResizeTo blockTokenStack.LastRowIndex
 		      end if
 		      
 		      blockTokenStack( blockTokenStackIndex ) = M_Token.BeginBlockToken( currentToken )
+		      beginBlockIndexes( blockTokenStackIndex ) = tokens.LastRowIndex
 		      context = M_Token.BeginBlockToken( currentToken )
 		      
 		    end if
 		  wend
 		  
-		  if interpreter isa object then
-		    interpreter.Interpret tokens, mb, position
+		  if interpreter isa object and tokens.Count <> 0 then
+		    interpreter.Interpret tokens, -1, mb, position
 		  end if
 		  
 		  return tokens

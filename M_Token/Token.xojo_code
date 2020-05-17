@@ -37,13 +37,33 @@ Protected Class Token
 		BytePosition As Integer
 	#tag EndProperty
 
+	#tag Property, Flags = &h0
+		mName As String
+	#tag EndProperty
+
 	#tag ComputedProperty, Flags = &h0
 		#tag Getter
 			Get
-			  return RaiseEvent GetName
+			  if mName = "" then
+			    mName = RaiseEvent GetName
+			  end if
+			  if mName = "" then
+			    mName = Introspection.GetType( self ).Name
+			    if self isa M_Token.BeginBlockToken then
+			      mName = "+" + mName
+			    elseif self isa M_Token.EndBlockToken then
+			      mName = "-" + mName
+			    end if
+			  end if
 			  
+			  return mName
 			End Get
 		#tag EndGetter
+		#tag Setter
+			Set
+			  mName = value
+			End Set
+		#tag EndSetter
 		Name As String
 	#tag EndComputedProperty
 
