@@ -15,9 +15,9 @@ Protected Class Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h0
-		Function GetNextTokenParsers(settings As Variant) As M_Token.ParserDelegate()
+		Function GetNextTokenParsers(context As M_Token.BeginBlockToken, settings As Variant) As M_Token.ParserDelegate()
 		  var parsers() as M_Token.ParserDelegate
-		  RaiseEvent GetNextTokenParsers( parsers, settings )
+		  RaiseEvent GetNextTokenParsers( parsers, context, settings )
 		  return parsers
 		  
 		End Function
@@ -29,16 +29,16 @@ Protected Class Token
 	#tag EndHook
 
 	#tag Hook, Flags = &h0, Description = 52657475726E20616E206172726179206F662050617273657244656C65676174652E2054686520706172736572732077696C6C206265207472696564206F6E207468652073747265616D20617420746861742063757272656E7420706F736974696F6E20696E206F7264657220756E74696C206120546F6B656E2069732072657475726E65642C20616E64207468617420746F6B656E2077696C6C2062652061736B656420666F72206974206E65787420746F6B656E20706172736572732E
-		Event GetNextTokenParsers(parsers() As M_Token.ParserDelegate, settings As Variant)
+		Event GetNextTokenParsers(parsers() As M_Token.ParserDelegate, context As M_Token.BeginBlockToken, settings As Variant)
 	#tag EndHook
 
 
 	#tag Property, Flags = &h0
-		BytePosition As Integer
+		BytePosition As Integer = -1
 	#tag EndProperty
 
-	#tag Property, Flags = &h0
-		mName As String
+	#tag Property, Flags = &h21
+		Private mName As String
 	#tag EndProperty
 
 	#tag ComputedProperty, Flags = &h0
@@ -46,13 +46,20 @@ Protected Class Token
 			Get
 			  if mName = "" then
 			    mName = RaiseEvent GetName
-			  end if
-			  if mName = "" then
-			    mName = Introspection.GetType( self ).Name
-			    if self isa M_Token.BeginBlockToken then
-			      mName = "+" + mName
-			    elseif self isa M_Token.EndBlockToken then
-			      mName = "-" + mName
+			    
+			    if mName = "" then
+			      //
+			      // Return a name based on the class name
+			      //
+			      mName = Introspection.GetType( self ).Name
+			      
+			      //
+			      // Strip the "token" suffix if present, but
+			      // only if that's not the entire name
+			      //
+			      if mName <> "token" and mName.EndsWith( "token" ) then
+			        mName = mName.Left( mName.Length - 5 )
+			      end if
 			    end if
 			  end if
 			  
@@ -128,6 +135,14 @@ Protected Class Token
 			InitialValue=""
 			Type="Integer"
 			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="mName"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="String"
+			EditorType="MultiLineEditor"
 		#tag EndViewProperty
 	#tag EndViewBehavior
 End Class

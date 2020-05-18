@@ -80,6 +80,14 @@ Inherits RuntimeException
 			Type="Text"
 			EditorType=""
 		#tag EndViewProperty
+		#tag ViewProperty
+			Name="BytePosition"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
 	#tag EndViewBehavior
 End Class
 #tag EndClass

@@ -55,7 +55,11 @@ Protected Module M_Token
 		  
 		  while position < mbSize 
 		    var startingPos as integer = position
-		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers( settings )
+		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers( context, settings )
+		    
+		    if parsers.Count = 0 then
+		      raise new TokenizerException( "No parsers returned by token " + Introspection.GetType( currentToken ).Name )
+		    end if
 		    
 		    for each parser as M_Token.ParserDelegate in parsers
 		      currentToken = parser.Invoke( mb, p, position, context, settings )
@@ -69,7 +73,17 @@ Protected Module M_Token
 		    next
 		    
 		    if currentToken is nil then
+		      //
+		      // We couldn't find a token to match
+		      //
 		      raise new InvalidTokenException( startingPos )
+		    end if
+		    
+		    if currentToken.BytePosition = -1 then
+		      //
+		      // The parser didn't fill this out, so let's do it for them
+		      //
+		      currentToken.BytePosition = startingPos
 		    end if
 		    
 		    if currentToken isa M_Token.EndBlockToken then
@@ -119,7 +133,7 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag DelegateDeclaration, Flags = &h1
-		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
+		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token . BeginBlockToken, settings As Variant) As M_Token.Token
 	#tag EndDelegateDeclaration
 
 
