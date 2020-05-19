@@ -12,25 +12,38 @@ Inherits M_Token.Interpreter
 		  if tokens.Count = 0 then
 		    Value = 0.0
 		    return
+		  elseif tokens.Count = 1 and tokens( 0 ) isa NumberToken then
+		    Value = tokens( 0 ).Value
+		    return
 		  end if
 		  
-		  var startIndex as integer
+		  var startIndex as integer = beginBlockIndex
 		  var endIndex as integer = tokens.LastRowIndex
 		  
 		  if beginBlockIndex = -1 then
 		    //
 		    // All done
 		    //
-		    startIndex = 2 // Skip the opening GroupToken and first number
-		    if tokens( endIndex ) isa GroupEndToken then
-		      endIndex = endIndex - 2
-		    else
-		      endIndex = endIndex - 1 // Before the last number
-		    end if
-		  else
-		    startIndex = beginBlockIndex + 2 // Skip the GroupToken and first number
-		    endIndex = endIndex - 2 // The last one will be a GroupEndToken
+		    endIndex = tokens.Count // Past the end to the "virtual" GroupToken
 		  end if
+		  
+		  //
+		  // See what's in the group
+		  //
+		  var itemCount as integer = endIndex - startIndex - 1
+		  if itemCount = 1 then
+		    if beginBlockIndex <> -1 then
+		      tokens.RemoveRowAt endIndex
+		      tokens.RemoveRowAt startIndex
+		    end if
+		    return
+		  end if
+		  
+		  //
+		  // Start at the first and last operators
+		  //
+		  startIndex = startIndex + 2
+		  endIndex = endIndex - 2
 		  
 		  if tokens( startIndex ) isa OperatorToken and tokens( endIndex ) isa OperatorToken then
 		    //
@@ -80,7 +93,16 @@ Inherits M_Token.Interpreter
 		    next
 		  next
 		  
+		  //
+		  // Remove the GroupTokens
+		  //
 		  Value = tokens( startIndex - 1 ).Value
+		  
+		  if beginBlockIndex <> -1 then
+		    tokens.RemoveRowAt beginBlockIndex + 2
+		    tokens.RemoveRowAt beginBlockIndex
+		  end if
+		  
 		  
 		End Sub
 	#tag EndEvent

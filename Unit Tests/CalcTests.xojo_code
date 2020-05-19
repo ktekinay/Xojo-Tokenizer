@@ -3,10 +3,23 @@ Protected Class CalcTests
 Inherits TestGroup
 	#tag Method, Flags = &h0
 		Sub BasicTest()
-		  var actual as double
+		  Assert.AreEqual 3.0, Calc.Evaluate( "1 + 2" )
+		  Assert.AreEqual 50.0, Calc.Evaluate( "10 * 5.0" )
+		  Assert.AreEqual 6.0, Calc.Evaluate( "18.0 / 3" )
+		  Assert.AreEqual -1.0, Calc.Evaluate( "1 - 2" )
+		  Assert.AreEqual 2.0, Calc.Evaluate( "1 + 8/2 * 4" )
 		  
-		  actual = Calc.Evaluate( "1 + 2" )
-		  Assert.AreEqual 3.0, actual
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub GroupTest()
+		  Assert.AreEqual -25.0, Calc.Evaluate( "(  10.0 * -5 ) / ( 1 + 1 )" )
+		  Assert.AreEqual -50.0, Calc.Evaluate( "(  10.0 * -5 ) / ( .5 * ( 1 + 1 ) )" )
+		  Assert.AreEqual 6.0, Calc.Evaluate( "(5+( 1.0))" )
+		  Assert.AreEqual 1.0, Calc.Evaluate( "((1))" )
+		  Assert.AreEqual 5.0, Calc.Evaluate( "10.0 / ( 1 + 1 )" )
+		  
 		End Sub
 	#tag EndMethod
 
