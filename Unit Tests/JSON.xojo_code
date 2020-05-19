@@ -1,19 +1,6 @@
 #tag Module
 Protected Module JSON
 	#tag Method, Flags = &h21
-		Private Sub AppendValueParsers(appendTo() As M_Token.ParserDelegate)
-		  appendTo.AddRow AddressOf JSON.ParseArrayStart
-		  appendTo.AddRow AddressOf JSON.ParseObjectStart
-		  appendTo.AddRow AddressOf JSON.ParseNull
-		  appendTo.AddRow AddressOf JSON.ParseTrue
-		  appendTo.AddRow AddressOf JSON.ParseFalse
-		  appendTo.AddRow AddressOf JSON.ParseString
-		  appendTo.AddRow AddressOf JSON.ParseNumber
-		  
-		End Sub
-	#tag EndMethod
-
-	#tag Method, Flags = &h21
 		Private Function CharToByte(char As String) As Integer
 		  return char.AscByte
 		End Function
@@ -62,27 +49,23 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseArrayEnd(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused settings
+		Protected Function ParseArrayEnd(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken) As M_Token.Token
+		  static endBracket as byte = CharToByte( "]" )
 		  
 		  if context isa ArrayToken then
-		    static endBracket as byte = CharToByte( "]" )
 		    if p.Byte( bytePos ) = endBracket then
 		      bytePos = bytePos + 1
 		      M_Token.AdvancePastWhiteSpace mb, p, bytePos
 		      return new ArrayEndToken
 		    end if
 		  end if
-		  
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseArrayStart(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseArrayStart(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static bracket as byte = CharToByte( "[" )
+		  
 		  if p.Byte( bytePos ) = bracket then
 		    bytePos = bytePos + 1
 		    M_Token.AdvancePastWhiteSpace mb, p, bytePos
@@ -92,26 +75,9 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseColon(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused settings
-		  
-		  if context isa ObjectToken then
-		    static colon as byte = CharToByte( ":" )
-		    if p.Byte( bytePos ) = colon then
-		      bytePos = bytePos + 1
-		      M_Token.AdvancePastWhiteSpace mb, p, bytePos
-		      return new ColonToken
-		    end if
-		  end if
-		End Function
-	#tag EndMethod
-
-	#tag Method, Flags = &h1
-		Protected Function ParseComma(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseComma(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static comma as byte = CharToByte( "," )
+		  
 		  if p.Byte( bytePos ) = comma then
 		    bytePos = bytePos + 1
 		    M_Token.AdvancePastWhiteSpace mb, p, bytePos
@@ -121,10 +87,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseFalse(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseFalse(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static f as byte = CharToByte( "f" )
 		  static a as byte = CharToByte( "a" )
 		  static l as byte = CharToByte( "l" )
@@ -149,32 +112,25 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseKey(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused settings
+		Protected Function ParseKey(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
+		  static quote as byte = CharToByte( """" )
 		  
-		  if context isa ObjectToken then
-		    static quote as byte = CharToByte( """" )
-		    
-		    if p.Byte( bytePos ) <> quote then
-		      return nil
-		    end if
-		    
-		    var startPos as integer = bytePos
-		    bytePos = bytePos + 1
-		    
-		    var result as string = IdentifyString( mb, p, bytePos )
-		    M_Token.AdvancePastWhiteSpace mb, p, bytePos
-		    return new KeyToken( startPos, result )
+		  if p.Byte( bytePos ) <> quote then
+		    return nil
 		  end if
+		  
+		  var startPos as integer = bytePos
+		  bytePos = bytePos + 1
+		  
+		  var result as string = IdentifyString( mb, p, bytePos )
+		  M_Token.AdvancePastWhiteSpace mb, p, bytePos
+		  return new KeyToken( startPos, result )
 		  
 		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseNull(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseNull(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static n as byte = CharToByte( "n" )
 		  static u as byte = CharToByte( "u" )
 		  static l as byte = CharToByte( "l" )
@@ -196,10 +152,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseNumber(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseNumber(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  var startingPos as integer = bytePos
 		  
 		  var number as variant = M_Token.ExtractNumber( mb, p, bytePos )
@@ -216,9 +169,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseObjectEnd(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused settings
-		  
+		Protected Function ParseObjectEnd(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken) As M_Token.Token
 		  if context isa ObjectToken then
 		    static endBrace as byte = CharToByte( "}" )
 		    if p.Byte( bytePos ) = endBrace then
@@ -232,10 +183,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseObjectStart(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseObjectStart(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static brace as byte = CharToByte( "{" )
 		  if p.Byte( bytePos ) = brace then
 		    bytePos = bytePos + 1
@@ -246,10 +194,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseString(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseString(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static quote as byte = CharToByte( """" )
 		  
 		  if p.Byte( bytePos ) <> quote then
@@ -266,10 +211,7 @@ Protected Module JSON
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function ParseTrue(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Protected Function ParseTrue(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  static t as byte = CharToByte( "t" )
 		  static r as byte = CharToByte( "r" )
 		  static u as byte = CharToByte( "u" )
@@ -288,6 +230,34 @@ Protected Module JSON
 		    return token
 		  end if
 		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function ParseValue(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
+		  static bracket as byte = CharToByte( "[" )
+		  static brace as byte = CharToByte( "{" )
+		  static n as byte = CharToByte( "n" )
+		  static t as byte = CharToByte( "t" )
+		  static f as byte = CharToByte( "f" )
+		  static quote as byte = CharToByte( """" )
+		  
+		  select case p.Byte( bytePos )
+		  case bracket
+		    return ParseArrayStart( mb, p, bytePos )
+		  case brace
+		    return ParseObjectStart( mb, p, bytePos )
+		  case n
+		    return ParseNull( mb, p, bytePos )
+		  case t
+		    return ParseTrue( mb, p, bytePos )
+		  case f
+		    return ParseFalse( mb, p, bytePos )
+		  case quote
+		    return ParseString( mb, p, bytePos )
+		  case else
+		    return ParseNumber( mb, p, bytePos )
+		  end select
 		End Function
 	#tag EndMethod
 

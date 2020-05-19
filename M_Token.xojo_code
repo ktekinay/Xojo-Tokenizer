@@ -162,7 +162,7 @@ Protected Module M_Token
 		  var s as string = mb.StringValue( startingPos, length )
 		  var result as variant
 		  
-		  if foundDecimal then
+		  if foundDot then
 		    var d as double = s.ToDouble
 		    result = d
 		  else
@@ -210,28 +210,18 @@ Protected Module M_Token
 		  
 		  while position < mbSize 
 		    var startingPos as integer = position
-		    var parsers() as M_Token.ParserDelegate = currentToken.GetNextTokenParsers( context, settings )
-		    
-		    if parsers.Count = 0 then
-		      raise new TokenizerException( "No parsers returned by token " + Introspection.GetType( currentToken ).Name )
-		    end if
-		    
-		    for each parser as M_Token.ParserDelegate in parsers
-		      currentToken = parser.Invoke( mb, p, position, context, settings )
-		      if currentToken isa object then
-		        if not ( currentToken isa M_Token.IgnoreThisToken ) then
-		          tokens.AddRow currentToken
-		        end if
-		        exit for parser
-		      end if
-		      position = startingPos // The next parser must start at the same place
-		    next
+		    var previousToken as M_Token.Token = currentToken // Lets us see the value in the debugger
+		    currentToken = previousToken.GetNextToken( mb, p, position, context, tokens, settings )
 		    
 		    if currentToken is nil then
 		      //
 		      // We couldn't find a token to match
 		      //
 		      raise new InvalidTokenException( startingPos )
+		    end if
+		    
+		    if not ( currentToken isa M_Token.IgnoreThisToken ) then
+		      tokens.AddRow currentToken
 		    end if
 		    
 		    if currentToken.BytePosition = -1 then
@@ -286,10 +276,6 @@ Protected Module M_Token
 		  return Parse( mb, position, startDocumentToken, settings, interpreter )
 		End Function
 	#tag EndMethod
-
-	#tag DelegateDeclaration, Flags = &h1
-		Protected Delegate Function ParserDelegate(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token . BeginBlockToken, settings As Variant) As M_Token.Token
-	#tag EndDelegateDeclaration
 
 
 End Module

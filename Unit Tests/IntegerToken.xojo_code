@@ -9,31 +9,38 @@ Inherits M_Token.Token
 	#tag EndEvent
 
 	#tag Event , Description = 52657475726E20616E206172726179206F662050617273657244656C65676174652E2054686520706172736572732077696C6C206265207472696564206F6E207468652073747265616D20617420746861742063757272656E7420706F736974696F6E20696E206F7264657220756E74696C206120546F6B656E2069732072657475726E65642C20616E64207468617420746F6B656E2077696C6C2062652061736B656420666F72206974206E65787420746F6B656E20706172736572732E
-		Sub GetNextTokenParsers(parsers() As M_Token.ParserDelegate, context As M_Token.BeginBlockToken, settings As Variant)
+		Function GetNextToken(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, tokens() As M_Token.Token, settings As Variant) As M_Token.Token
 		  #pragma unused context
+		  #pragma unused tokens
 		  
 		  //
 		  // If it's any number, must check for a double first
 		  //
-		  if settings.Type = Variant.TypeBoolean and settings.BooleanValue then
-		    parsers.AddRow AddressOf DoubleToken.ParseDouble
-		  end if
-		  parsers.AddRow AddressOf ParseInteger
 		  
-		End Sub
+		  M_Token.AdvancePastWhiteSpace( mb, p, bytePos )
+		  
+		  var result as M_Token.Token
+		  
+		  if settings.Type = Variant.TypeBoolean and settings.BooleanValue then
+		    result = DoubleToken.ParseDouble( mb, p, bytePos )
+		  end if
+		  
+		  if result is nil then
+		    result = ParseInteger( mb, p, bytePos )
+		  end if
+		  
+		  return result
+		  
+		End Function
 	#tag EndEvent
 
 
 	#tag Method, Flags = &h0
-		Shared Function ParseInteger(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, context As M_Token.BeginBlockToken, settings As Variant) As M_Token.Token
-		  #pragma unused context
-		  #pragma unused settings
-		  
+		Shared Function ParseInteger(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As M_Token.Token
 		  const kZero as byte = 48
 		  const kNine as byte = 57
 		  const kHyphen as byte = 45
 		  
-		  M_Token.AdvancePastWhiteSpace( mb, p, bytePos )
 		  if bytePos >= mb.Size then
 		    return nil
 		  end if
@@ -59,14 +66,6 @@ Inherits M_Token.Token
 
 
 	#tag ViewBehavior
-		#tag ViewProperty
-			Name="mName"
-			Visible=false
-			Group="Behavior"
-			InitialValue=""
-			Type="String"
-			EditorType="MultiLineEditor"
-		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Name"
 			Visible=true
