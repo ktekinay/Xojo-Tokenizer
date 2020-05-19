@@ -7,8 +7,8 @@ Protected Module JSON
 		  appendTo.AddRow AddressOf JSON.ParseNull
 		  appendTo.AddRow AddressOf JSON.ParseTrue
 		  appendTo.AddRow AddressOf JSON.ParseFalse
-		  appendTo.AddRow AddressOf JSON.ParseNumber
 		  appendTo.AddRow AddressOf JSON.ParseString
+		  appendTo.AddRow AddressOf JSON.ParseNumber
 		  
 		End Sub
 	#tag EndMethod
@@ -200,102 +200,17 @@ Protected Module JSON
 		  #pragma unused context
 		  #pragma unused settings
 		  
-		  static zero as byte = CharToByte( "0" )
-		  static nine as byte = CharToByte( "9" )
-		  static dot as byte = CharToByte( "." )
-		  static minus as byte = CharToByte( "-" )
-		  static plus as byte = CharToByte( "+" )
-		  static e as byte = CharToByte( "e" )
-		  
 		  var startingPos as integer = bytePos
 		  
-		  var isNegative as boolean
-		  var foundDigits as boolean
-		  var foundDot as boolean
-		  var foundDecimal as boolean
-		  var foundE as boolean
-		  var foundSN as boolean
-		  
-		  if p.Byte( bytePos ) = minus then
-		    bytePos = bytePos + 1
-		    isNegative = true
-		  elseif p.Byte( bytePos ) = plus then
-		    bytePos = bytePos + 1
-		  end if
-		  
-		  var mbSize as integer = mb.Size
-		  
-		  //
-		  // Look for integer portion
-		  //
-		  while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine
-		    foundDigits = true
-		    bytePos = bytePos + 1
-		  wend
-		  
-		  //
-		  // See if there is a decimal
-		  //
-		  if bytePos < mbSize and p.Byte( bytePos ) = dot then
-		    foundDot = true
-		    bytePos = bytePos + 1
-		    
-		    while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine 
-		      foundDecimal = true
-		      bytePos = bytePos + 1
-		    wend
-		  end if
-		  
-		  //
-		  // See if it's scientific notation
-		  //
-		  if bytePos < mbSize and ( foundDigits or foundDecimal ) and p.Byte( bytePos ) = e then
-		    foundE = true
-		    bytePos = bytePos + 1
-		    
-		    if bytePos < mbSize and ( p.Byte( bytePos ) = minus or p.Byte( bytePos ) = plus ) then
-		      bytePos = bytePos + 1
-		    end if
-		    
-		    while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine 
-		      foundSN = true
-		      bytePos = bytePos + 1
-		    wend
-		  end if
-		  
-		  //
-		  // See if we have a value here
-		  //
-		  if foundE and not foundSN then
-		    //
-		    // Improper scientific notation
-		    //
-		    return nil
-		    
-		  elseif not foundDigits and not foundDecimal then
-		    //
-		    // Didn't identify a proper number
-		    //
+		  var number as variant = M_Token.ExtractNumber( mb, p, bytePos )
+		  if number is nil then
 		    return nil
 		  end if
 		  
-		  //
-		  // Let's grab the value and return it
-		  //
-		  var length as integer = bytePos - startingPos
-		  var s as string = mb.StringValue( startingPos, length )
-		  var result as new ValueToken( startingPos, nil )
-		  
-		  if foundDecimal then
-		    var d as double = s.ToDouble
-		    result.Value = d
-		  else
-		    var i as integer = s.ToInteger
-		    result.Value = i
-		  end if
-		  
+		  var result as new ValueToken( startingPos, number )
 		  M_Token.AdvancePastWhiteSpace mb, p, bytePos
 		  return result
+		  
 		  
 		End Function
 	#tag EndMethod

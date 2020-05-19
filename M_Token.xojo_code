@@ -35,6 +35,117 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function ExtractNumber(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As Variant
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  const zero as byte = 48
+		  const nine as byte = 57
+		  const dot as byte = 46
+		  const minus as byte = 45
+		  const plus as byte = 43
+		  const e as byte = 101
+		  const eCap as byte = 69
+		  
+		  var startingPos as integer = bytePos
+		  
+		  var foundDigits as boolean
+		  var foundDot as boolean
+		  var foundDecimal as boolean
+		  var foundE as boolean
+		  var foundSN as boolean
+		  
+		  if p.Byte( bytePos ) = minus then
+		    bytePos = bytePos + 1
+		  elseif p.Byte( bytePos ) = plus then
+		    bytePos = bytePos + 1
+		  end if
+		  
+		  var mbSize as integer = mb.Size
+		  
+		  //
+		  // Look for integer portion
+		  //
+		  while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine
+		    foundDigits = true
+		    bytePos = bytePos + 1
+		  wend
+		  
+		  //
+		  // See if there is a decimal
+		  //
+		  if bytePos < mbSize and p.Byte( bytePos ) = dot then
+		    foundDot = true
+		    bytePos = bytePos + 1
+		    
+		    while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine 
+		      foundDecimal = true
+		      bytePos = bytePos + 1
+		    wend
+		  end if
+		  
+		  //
+		  // See if it's scientific notation
+		  //
+		  if bytePos < mbSize and _
+		    ( foundDigits or foundDecimal ) and _
+		    ( p.Byte( bytePos ) = e or p.Byte( bytePos ) = eCap ) then
+		    foundE = true
+		    bytePos = bytePos + 1
+		    
+		    if bytePos < mbSize and ( p.Byte( bytePos ) = minus or p.Byte( bytePos ) = plus ) then
+		      bytePos = bytePos + 1
+		    end if
+		    
+		    while bytePos < mbSize and p.Byte( bytePos ) >= zero and p.Byte( bytePos ) <= nine 
+		      foundSN = true
+		      bytePos = bytePos + 1
+		    wend
+		  end if
+		  
+		  //
+		  // See if we have a value here
+		  //
+		  if foundE and not foundSN then
+		    //
+		    // Improper scientific notation
+		    //
+		    bytePos = startingPos
+		    return nil
+		    
+		  elseif not foundDigits and not foundDecimal then
+		    //
+		    // Didn't identify a proper number
+		    //
+		    bytePos = startingPos
+		    return nil
+		  end if
+		  
+		  //
+		  // Let's grab the value and return it
+		  //
+		  var length as integer = bytePos - startingPos
+		  var s as string = mb.StringValue( startingPos, length )
+		  var result as variant
+		  
+		  if foundDecimal then
+		    var d as double = s.ToDouble
+		    result = d
+		  else
+		    var i as integer = s.ToInteger
+		    result = i
+		  end if
+		  
+		  return result
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  //**********************************************************/
 		  //*                                                        */
