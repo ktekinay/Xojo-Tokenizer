@@ -6,6 +6,13 @@ Protected Module M_Token
 		  // A convenience method to advance past all white space
 		  //
 		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
 		  const kReturn as byte = &hD
 		  const kLinefeed as byte = &hA
 		  const kTab as byte = &h9
@@ -44,6 +51,13 @@ Protected Module M_Token
 		  if position < 0 then
 		    position = 0
 		  end if
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
 		  
 		  const kStartingBlockStackLastRow as integer = 99
 		  
