@@ -69,11 +69,6 @@ Inherits M_Token.Interpreter
 	#tag EndEvent
 
 
-	#tag Property, Flags = &h0
-		Value As Variant
-	#tag EndProperty
-
-
 	#tag ViewBehavior
 		#tag ViewProperty
 			Name="Name"

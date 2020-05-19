@@ -1,21 +1,14 @@
 #tag Class
-Protected Class Interpreter
-Implements M_Token.InterpreterInterface
+Protected Class CalcTests
+Inherits TestGroup
 	#tag Method, Flags = &h0
-		Sub Interpret(tokens() As M_Token.Token, beginBlockIndex As Integer, mb As MemoryBlock, currentBytePos As Integer)
-		  RaiseEvent Interpret( tokens, beginBlockIndex, mb, currentBytePos )
+		Sub BasicTest()
+		  var actual as double
+		  
+		  actual = Calc.Evaluate( "1 + 2" )
+		  Assert.AreEqual 3.0, actual
 		End Sub
 	#tag EndMethod
-
-
-	#tag Hook, Flags = &h0, Description = 496E746572707265742074686520676976656E20746F6B656E732E20496620616E20496E74657270726574657220697320676976656E206173206120706172616D6574657220746F2050617273652C207468697320697320726169736564207768656E20697420656E636F756E7465727320616E20456E64426C6F636B546F6B656E20616E642061742074686520656E64206F662074686520646F63756D656E742E
-		Event Interpret(tokens() As M_Token.Token, beginBlockIndex As Integer, mb As MemoryBlock, currentBytePos As Integer)
-	#tag EndHook
-
-
-	#tag Property, Flags = &h0
-		Value As Variant
-	#tag EndProperty
 
 
 	#tag ViewBehavior
