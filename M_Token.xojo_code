@@ -1,6 +1,36 @@
 #tag Module
 Protected Module M_Token
 	#tag Method, Flags = &h1
+		Protected Sub AdvancePastSpacesAndTabs(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer)
+		  //
+		  // A convenience method to advance past spaces and tabs
+		  //
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  const kTab as byte = &h9
+		  const kSpace as byte = &h20
+		  
+		  while bytePos <  mb.Size
+		    select case p.Byte( bytePos )
+		    case kTab
+		    case kSpace
+		    case else
+		      return
+		    end select
+		    
+		    bytePos = bytePos + 1
+		  wend
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Sub AdvancePastWhiteSpace(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer)
 		  //
 		  // A convenience method to advance past all white space
