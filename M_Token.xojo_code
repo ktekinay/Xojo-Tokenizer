@@ -13,9 +13,6 @@ Protected Module M_Token
 		    #pragma StackOverflowChecking false
 		  #endif
 		  
-		  const kTab as byte = &h9
-		  const kSpace as byte = &h20
-		  
 		  while bytePos <  mb.Size
 		    select case p.Byte( bytePos )
 		    case kTab
@@ -42,11 +39,6 @@ Protected Module M_Token
 		    #pragma NilObjectChecking false
 		    #pragma StackOverflowChecking false
 		  #endif
-		  
-		  const kReturn as byte = &hD
-		  const kLinefeed as byte = &hA
-		  const kTab as byte = &h9
-		  const kSpace as byte = &h20
 		  
 		  while bytePos <  mb.Size
 		    select case p.Byte( bytePos )
@@ -176,6 +168,50 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function NextWord(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, enc As TextEncoding = Nil) As String
+		  //
+		  // Convenience function to return the next series of bytes as a string
+		  // leaving bytePos pointing at the next white space
+		  //
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  if enc = nil then
+		    enc = Encodings.UTF8
+		  end if
+		  
+		  var startingPos as integer = bytePos
+		  
+		  while bytePos <  mb.Size
+		    select case p.Byte( bytePos )
+		    case kReturn
+		    case kLinefeed
+		    case kTab
+		    case kSpace
+		    case else
+		      bytePos = bytePos + 1
+		      continue while
+		    end select
+		  wend
+		  
+		  var length as integer = bytePos - startingPos
+		  var s as string
+		  
+		  if length <> 0 then
+		    s = mb.StringValue( startingPos, length, enc )
+		  end if
+		  
+		  return s
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  //**********************************************************/
 		  //*                                                        */
@@ -276,6 +312,19 @@ Protected Module M_Token
 		  return Parse( mb, position, startDocumentToken, settings, interpreter )
 		End Function
 	#tag EndMethod
+
+
+	#tag Constant, Name = kLinefeed, Type = Double, Dynamic = False, Default = \"&hA", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = kReturn, Type = Double, Dynamic = False, Default = \"&hD", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = kSpace, Type = Double, Dynamic = False, Default = \"&h20", Scope = Protected
+	#tag EndConstant
+
+	#tag Constant, Name = kTab, Type = Double, Dynamic = False, Default = \"&h9", Scope = Protected
+	#tag EndConstant
 
 
 End Module
