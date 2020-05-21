@@ -31,7 +31,7 @@ To create your own tokenizer:
   * Use the special `M_Token.Token` subclasses `BeginBlockToken` and `EndBlockToken` to represent blocks in the token stream.
   * Use the special subclass `M_Token.IgnoreThisToken` to represent necessary items in your string that must be present but that do not have to be included in the token stream, e.g., commas.
 * In each `Token` subclass, implement the `GetNextToken` event that will test the upcoming characters for a valid string that would logically follow and, if matched, return a new instance of one of your `Token` subclasses.
-* Call `M_Token.Parse` on your string and give it an intial `Token` that represents the start of your document (This will not be incluced in the ultimate token stream).
+* Call `M_Token.Parse` on your string and give it an intial `Token` that represents the start of your document (This will not be included in the ultimate token stream).
 
 ## How It Works
 
@@ -87,6 +87,14 @@ Next we outline the rules of how the equation string may be laid out:
 * After an operator may come a number or `(` to start another group.
 * After a `)` may come another `)` or an operator.
 * Numbers may be positive or negative integers, doubles, or scientific notation.
+
+Some example equations:
+
+* 1 + 2
+* 4*5. - 9
+* ( 9 - 4)*2.0
+* ( (8-4) +2 ) / 5.0
+* -1.56e45 / 2.86e10
 
 We also define how we will preprocess the equation string:
 
