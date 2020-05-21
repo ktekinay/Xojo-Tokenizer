@@ -212,7 +212,7 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
+		Protected Function Parse(mb As MemoryBlock, ByRef position As Integer, startDocumentToken As M_Token.Token, tag As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  //**********************************************************/
 		  //*                                                        */
 		  //*             This is the main parse method              */
@@ -247,7 +247,7 @@ Protected Module M_Token
 		  while position < mbSize 
 		    var startingPos as integer = position
 		    var previousToken as M_Token.Token = currentToken // Lets us see the value in the debugger
-		    currentToken = previousToken.GetNextToken( mb, p, position, context, tokens, settings )
+		    currentToken = previousToken.GetNextToken( mb, p, position, context, tokens, tag )
 		    
 		    if currentToken is nil then
 		      //
@@ -307,9 +307,9 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
-		Protected Function Parse(mb As MemoryBlock, startDocumentToken As M_Token.Token, settings As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
+		Protected Function Parse(mb As MemoryBlock, startDocumentToken As M_Token.Token, tag As Variant = Nil, interpreter As M_Token.InterpreterInterface = Nil) As M_Token.Token()
 		  var position as integer
-		  return Parse( mb, position, startDocumentToken, settings, interpreter )
+		  return Parse( mb, position, startDocumentToken, tag, interpreter )
 		End Function
 	#tag EndMethod
 
