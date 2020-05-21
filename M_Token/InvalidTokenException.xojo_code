@@ -1,6 +1,6 @@
 #tag Class
 Protected Class InvalidTokenException
-Inherits RuntimeException
+Inherits M_Token.TokenizerException
 	#tag Method, Flags = &h0
 		Sub Constructor(bytePos As Integer)
 		  super.Constructor
