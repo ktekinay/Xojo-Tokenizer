@@ -112,7 +112,7 @@ var tokens() as M_Token.Token = M_Token.Parse( equation, new GroupToken )
 
 **Note**: *`new GroupToken` defines the starting point of the process since equation is considered one large group. In other situations, you may define a special `Token` to represent the start of your string.*
 
-`Parse` will return an array of your `Token` subclasses that you may use to convert to a number. The easiest way to do that is to define an interpreter subclass of `M_Token.Interpreter`. The old of the interpreter is to... well, interpret the `Token` array and ultimately convert that to a value.
+`Parse` will return an array of your `Token` subclasses that you may use to convert to a number. The easiest way to do that is to define an interpreter subclass of `M_Token.Interpreter`. The role of the interpreter is to... well, interpret the `Token` array and ultimately convert that to a value (or whatever else is appropriate).
 
 You can look at the interpreter code in the included project but the short version is this:
 
