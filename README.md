@@ -110,7 +110,7 @@ GroupToken As M_Token.BeginBlockToken
 GroupEndToken As M_Token.EndBlockToken
 ```
 
-Implement the `GetNextToken` event for each token. This is where the subclass will examine the byte at the current position and deterine the _next_ `Token` that represents it of them. For example, the `ValueToken` will see of the next byte is `)` and return a `GroupEndToken`, one of the operators and return an `OperatorToken`, or neither and return Null. If it does return a `Token`, it will first call `M_Token.AdvancePastWhiteSpace` to leave the `bytePos` at the next availble byte that might start a new token.
+Implement the `GetNextToken` event for each token. This is where the subclass will examine the byte at the current position and deterine the _next_ `Token` that represents it (or them). For example, the `ValueToken` will see of the next byte is `)` and return a `GroupEndToken`, one of the operators and return an `OperatorToken` with its `Value` set to the operator, or neither and return Null. If it does return a `Token`, it will first call `M_Token.AdvancePastWhiteSpace` to leave the `bytePos` at the next availble byte that might start a new token.
 
 That's it. We are now ready to call `M_Token.Parse` on an equation like this:
 
