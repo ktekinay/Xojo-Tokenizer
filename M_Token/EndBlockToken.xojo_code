@@ -1,6 +1,11 @@
 #tag Class
 Protected Class EndBlockToken
 Inherits M_Token.Token
+	#tag Property, Flags = &h0
+		Match As M_Token.BeginBlockToken
+	#tag EndProperty
+
+
 	#tag ViewBehavior
 		#tag ViewProperty
 			Name="Name"

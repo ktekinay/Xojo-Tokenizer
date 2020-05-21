@@ -268,6 +268,8 @@ Protected Module M_Token
 		    end if
 		    
 		    if currentToken isa M_Token.EndBlockToken then
+		      EndBlockToken( currentToken ).Match = context // Store the matching BeginBlockToken
+		      
 		      if blockTokenStackIndex = -1 then
 		        raise new InvalidTokenException( startingPos )
 		      end if
