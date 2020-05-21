@@ -37,7 +37,7 @@ To create your own tokenizer:
 
 The `Parse` function will ask the initial `Token` for the first `Token` in the stream through its `GetNextToken` event. Then it will ask that `Token`, and repeat until all the bytes in the string are consumed.
 
-You may optionally feed the `Parse` methods a "Settings" object that will be relayed to the `Token` instances. These "Settings" can be anything you desire and can be used to change the overall operation of the token parsers. It can also be a vehicle through which a `Token` can send messages to subsequent `Token` instances.
+You may optionally feed the `Parse` methods a "Tag" object that will be relayed to the `Token` instances. These "Tag" can be anything you desire and can be used to change the overall operation of the token parsers. It can also be a vehicle through which a `Token` can send messages to subsequent `Token` instances.
 
 You may optionally give the `Parse` function an instance of an interpreter (an object that implements the `M_Token.InterpreterInterface` or a subclass of `M_Token.Interpreter`) that will be called every time it encounters an `EndBlockToken` and again once all the bytes of the string have been consumed.
 
@@ -69,6 +69,33 @@ The included examples illustrate various tokenizers and interpreters. <u>These a
 * Calculator (interprets simple equations)
 * JSON (emulates the native `ParseJSON`)
 * Integer and Double tokenization (basic example)
+
+### Walkthrough
+
+Let's walk through one of these examples, the Calculator.
+
+We start by defining the allowable tokens: Operators `*`, `/`, `+`, and `-`, and numbers. We will also use `(` and `)` to define groups.
+
+Next we define the rules of how the equation string may be laid out:
+
+* Whitespace is irrelevant.
+* The start of the string is a virtual group that encompases the entire equation.
+* At the start of the string, or after a `(`, may come another `(` or a number.
+* After a number may come an operator or `)` to close the group.
+* After an operator may come a number or `(` to start another group.
+* After a `)` may come another `)` or an operator.
+* Numbers may be positive or negative integers, doubles, or scientific notation.
+
+With these in mind we define our `Token` subclasses:
+
+```Xojo
+ValueToken As M_Token.Token
+OperatorToken As M_Token.Token
+GroupToken As M_Token.BeginBlockToken
+GroupEndToken As M_Token.EndBlockToken
+```
+
+
 
 ## Who Did This?
 
