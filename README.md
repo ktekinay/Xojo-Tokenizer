@@ -70,13 +70,15 @@ The included examples illustrate various tokenizers and interpreters. <u>These a
 * JSON (emulates the native `ParseJSON`)
 * Integer and Double tokenization (basic example)
 
-### Walkthrough
+## Walkthrough
 
 Let's walk through one of these examples, the Calculator.
 
-We start by defining the allowable tokens: Operators `*`, `/`, `+`, and `-`, and numbers. We will also use `(` and `)` to define groups.
+**NOTE**: *The code below is similar to the example code in the included project, but not the same. You will not be able to copy-and-paste this without modifications to that project.*
 
-Next we define the rules of how the equation string may be laid out:
+We start by defining the allowable tokens: Operators `*`, `/`, `+`, and `-`, and numbers. We will use `(` and `)` to define groups.
+
+Next we outline the rules of how the equation string may be laid out:
 
 * Whitespace is irrelevant.
 * The start of the string is a virtual group that encompases the entire equation.
@@ -85,6 +87,11 @@ Next we define the rules of how the equation string may be laid out:
 * After an operator may come a number or `(` to start another group.
 * After a `)` may come another `)` or an operator.
 * Numbers may be positive or negative integers, doubles, or scientific notation.
+
+We also define how we will preprocess the equation string:
+
+1. Strings will be UTF-8-encoded and trimmed.
+1. The current position will always point to the next byte that is not whitespace.
 
 With these in mind we define our `Token` subclasses:
 
@@ -95,7 +102,38 @@ GroupToken As M_Token.BeginBlockToken
 GroupEndToken As M_Token.EndBlockToken
 ```
 
+Implement the `GetNextToken` event for each token. This is where the subclass will examine the byte at the current position and deterine the _next_ `Token` that represents it of them. For example, the `ValueToken` will see of the next byte is `)` and return a `GroupEndToken`, one of the operators and return an `OperatorToken`, or neither and return Null. If it does return a `Token`, it will first call `M_Token.AdvancePastWhiteSpace` to leave the `bytePos` at the next availble byte that might start a new token.
 
+That's it. We are now ready to call `M_Token.Parse` on an equation like this:
+
+```Xojo
+var tokens() as M_Token.Token = M_Token.Parse( equation, new GroupToken )
+```
+
+**Note**: *`new GroupToken` defines the starting point of the process since equation is considered one large group. In other situations, you may define a special `Token` to represent the start of your string.*
+
+`Parse` will return an array of your `Token` subclasses that you may use to convert to a number. The easiest way to do that is to define an interpreter subclass of `M_Token.Interpreter`. The old of the interpreter is to... well, interpret the `Token` array and ultimately convert that to a value.
+
+You can look at the interpreter code in the included project but the short version is this:
+
+```Xojo
+var interpreter as new CalcInterpreter
+call M_Token.Parse (equation, new GroupToken, nil, interpreter )
+var result as double = interpreter.Value
+```
+
+If the equation is invalid, the tokenizer or interpreter will raise a RuntimeException, and we should be prepared for that too:
+
+```Xojo
+try
+  var interpreter as new CalcInterpreter
+  call M_Token.Parse( equation, new GroupToken, nil, interpreter )
+  var result as double = interpreter.Value
+
+catch err as M_Token.TokenizerException
+  MessageBox "Bad equation!"
+end try
+```
 
 ## Who Did This?
 
