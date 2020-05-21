@@ -23,8 +23,155 @@ Inherits TestGroup
 		End Sub
 	#tag EndMethod
 
+	#tag Method, Flags = &h0
+		Sub MalformedStringTest()
+		  var s as string
+		  
+		  #pragma BreakOnExceptions false
+		  
+		  try
+		    s = "1+"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "(1"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "1 + 1e"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "1 + 1e4e"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "1 + 1.1e4.2"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "1 + 1 )"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  try
+		    s = "((1 + 1 )"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
+		  #pragma BreakOnExceptions default 
+		  
+		End Sub
+	#tag EndMethod
+
 
 	#tag ViewBehavior
+		#tag ViewProperty
+			Name="Duration"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Double"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="FailedTestCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="IncludeGroup"
+			Visible=false
+			Group="Behavior"
+			InitialValue="True"
+			Type="Boolean"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="IsRunning"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Boolean"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="NotImplementedCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="PassedTestCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="RunTestCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="SkippedTestCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="StopTestOnFail"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Boolean"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="TestCount"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
 		#tag ViewProperty
 			Name="Name"
 			Visible=true
