@@ -14,7 +14,7 @@ Open the Harness project and copy the M_Token module to your project.
 
 ## Details
 
-See the [Wiki](https://github.com/ktekinay/Xojo-Tokenizer/wiki) for the API and step-by-step instructctions.
+See the [Wiki](https://github.com/ktekinay/Xojo-Tokenizer/wiki) for the API and step-by-step instructions.
 
 
 ## Who Did This?
