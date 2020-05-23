@@ -371,6 +371,9 @@ Protected Module M_Token
 	#tag Constant, Name = kTab, Type = Double, Dynamic = False, Default = \"&h9", Scope = Protected
 	#tag EndConstant
 
+	#tag Constant, Name = kVersion, Type = String, Dynamic = False, Default = \"1.0", Scope = Protected
+	#tag EndConstant
+
 
 End Module
 #tag EndModule
