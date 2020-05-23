@@ -244,6 +244,18 @@ Protected Module M_Token
 		  var context as M_Token.BeginBlockToken
 		  var beginBlockIndexes( kStartingBlockStackLastRow ) as integer
 		  
+		  //
+		  // If the startDocumentToken is a BeginBlockToken, add it to the start of the stream too
+		  //
+		  if startDocumentToken isa M_Token.BeginBlockToken then
+		    tokens.AddRow startDocumentToken
+		    
+		    context = M_Token.BeginBlockToken( startDocumentToken )
+		    blockTokenStackIndex = 0
+		    blockTokenStack( blockTokenStackIndex ) = context
+		    beginBlockIndexes( blockTokenStackIndex ) = 0
+		  end if
+		  
 		  while position < mbSize 
 		    var startingPos as integer = position
 		    var previousToken as M_Token.Token = currentToken // Lets us see the value in the debugger
@@ -300,6 +312,28 @@ Protected Module M_Token
 		  wend
 		  
 		  if interpreter isa object and tokens.Count <> 0 then
+		    if startDocumentToken isa M_Token.BeginBlockToken then
+		      var bbt as M_Token.BeginBlockToken = M_Token.BeginBlockToken( startDocumentToken )
+		      var endToken as M_Token.EndBlockToken = bbt.GetCorrespondingEndBlockToken
+		      if endToken isa object then
+		        //
+		        // Make sure this makes sense
+		        //
+		        if blockTokenStackIndex <> 0 then
+		          raise new TokenizerException( "Unmatched begin and end tokens" )
+		        end if
+		        
+		        endToken.BytePosition = position
+		        tokens.AddRow endToken
+		        interpreter.Interpret tokens, blockTokenStackIndex, mb, position
+		        blockTokenStackIndex = blockTokenStackIndex - 1
+		      end if
+		      
+		    end if
+		    
+		    //
+		    // Final wrap up call
+		    //
 		    interpreter.Interpret tokens, -1, mb, position
 		  end if
 		  

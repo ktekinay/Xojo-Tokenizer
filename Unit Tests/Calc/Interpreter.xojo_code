@@ -17,25 +17,24 @@ Inherits M_Token.Interpreter
 		    return
 		  end if
 		  
+		  //
+		  // If we get here and the beginBlockIndex = -1 (end of equation)
+		  // then something went wrong
+		  //
+		  if beginBlockIndex = -1 then
+		    raise new M_Token.TokenizerException( "Something went wrong" )
+		  end if
+		  
 		  var startIndex as integer = beginBlockIndex
 		  var endIndex as integer = tokens.LastRowIndex
-		  
-		  if beginBlockIndex = -1 then
-		    //
-		    // All done
-		    //
-		    endIndex = tokens.Count // Past the end to the "virtual" GroupToken
-		  end if
 		  
 		  //
 		  // See what's in the group
 		  //
 		  var itemCount as integer = endIndex - startIndex - 1
 		  if itemCount = 1 then
-		    if beginBlockIndex <> -1 then
-		      tokens.RemoveRowAt endIndex
-		      tokens.RemoveRowAt startIndex
-		    end if
+		    tokens.RemoveRowAt endIndex
+		    tokens.RemoveRowAt startIndex
 		    return
 		  end if
 		  
@@ -98,10 +97,8 @@ Inherits M_Token.Interpreter
 		  //
 		  Value = tokens( startIndex - 1 ).Value
 		  
-		  if beginBlockIndex <> -1 then
-		    tokens.RemoveRowAt beginBlockIndex + 2
-		    tokens.RemoveRowAt beginBlockIndex
-		  end if
+		  tokens.RemoveRowAt beginBlockIndex + 2
+		  tokens.RemoveRowAt beginBlockIndex
 		  
 		  
 		End Sub
