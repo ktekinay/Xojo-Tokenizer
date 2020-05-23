@@ -287,7 +287,7 @@ Protected Module M_Token
 		      end if
 		      
 		      if interpreter isa object then
-		        interpreter.Interpret( tokens, beginBlockIndexes( blockTokenStackIndex ), mb, position )
+		        interpreter.Interpret tokens, beginBlockIndexes( blockTokenStackIndex ), mb
 		      end if
 		      
 		      blockTokenStackIndex = blockTokenStackIndex - 1
@@ -325,7 +325,7 @@ Protected Module M_Token
 		        
 		        endToken.BytePosition = position
 		        tokens.AddRow endToken
-		        interpreter.Interpret tokens, blockTokenStackIndex, mb, position
+		        interpreter.Interpret tokens, blockTokenStackIndex, mb
 		        blockTokenStackIndex = blockTokenStackIndex - 1
 		      end if
 		      
@@ -334,7 +334,7 @@ Protected Module M_Token
 		    //
 		    // Final wrap up call
 		    //
-		    interpreter.Interpret tokens, -1, mb, position
+		    interpreter.Interpret tokens, -1, mb
 		  end if
 		  
 		  return tokens
