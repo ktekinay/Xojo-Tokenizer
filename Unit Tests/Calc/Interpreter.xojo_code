@@ -2,9 +2,8 @@
 Private Class Interpreter
 Inherits M_Token.Interpreter
 	#tag Event , Description = 496E746572707265742074686520676976656E20746F6B656E732E20496620616E20496E74657270726574657220697320676976656E206173206120706172616D6574657220746F2050617273652C207468697320697320726169736564207768656E20697420656E636F756E7465727320616E20456E64426C6F636B546F6B656E20616E642061742074686520656E64206F662074686520646F63756D656E742E
-		Sub Interpret(tokens() As M_Token.Token, beginBlockIndex As Integer, mb As MemoryBlock, currentBytePos As Integer)
+		Sub Interpret(tokens() As M_Token.Token, beginBlockIndex As Integer, mb As MemoryBlock)
 		  #pragma unused mb
-		  #pragma unused currentBytePos
 		  
 		  //
 		  // Sanity check
@@ -17,25 +16,24 @@ Inherits M_Token.Interpreter
 		    return
 		  end if
 		  
+		  //
+		  // If we get here and the beginBlockIndex = -1 (end of equation)
+		  // then something went wrong
+		  //
+		  if beginBlockIndex = -1 then
+		    raise new M_Token.TokenizerException( "Something went wrong" )
+		  end if
+		  
 		  var startIndex as integer = beginBlockIndex
 		  var endIndex as integer = tokens.LastRowIndex
-		  
-		  if beginBlockIndex = -1 then
-		    //
-		    // All done
-		    //
-		    endIndex = tokens.Count // Past the end to the "virtual" GroupToken
-		  end if
 		  
 		  //
 		  // See what's in the group
 		  //
 		  var itemCount as integer = endIndex - startIndex - 1
 		  if itemCount = 1 then
-		    if beginBlockIndex <> -1 then
-		      tokens.RemoveRowAt endIndex
-		      tokens.RemoveRowAt startIndex
-		    end if
+		    tokens.RemoveRowAt endIndex
+		    tokens.RemoveRowAt startIndex
 		    return
 		  end if
 		  
@@ -98,10 +96,8 @@ Inherits M_Token.Interpreter
 		  //
 		  Value = tokens( startIndex - 1 ).Value
 		  
-		  if beginBlockIndex <> -1 then
-		    tokens.RemoveRowAt beginBlockIndex + 2
-		    tokens.RemoveRowAt beginBlockIndex
-		  end if
+		  tokens.RemoveRowAt beginBlockIndex + 2
+		  tokens.RemoveRowAt beginBlockIndex
 		  
 		  
 		End Sub
