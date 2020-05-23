@@ -311,26 +311,35 @@ Protected Module M_Token
 		    end if
 		  wend
 		  
-		  if interpreter isa object and tokens.Count <> 0 then
-		    if startDocumentToken isa M_Token.BeginBlockToken then
-		      var bbt as M_Token.BeginBlockToken = M_Token.BeginBlockToken( startDocumentToken )
-		      var endToken as M_Token.EndBlockToken = bbt.GetCorrespondingEndBlockToken
-		      if endToken isa object then
-		        //
-		        // Make sure this makes sense
-		        //
-		        if blockTokenStackIndex <> 0 then
-		          raise new TokenizerException( "Unmatched begin and end tokens" )
-		        end if
-		        
-		        endToken.BytePosition = position
-		        tokens.AddRow endToken
-		        interpreter.Interpret tokens, blockTokenStackIndex, mb
-		        blockTokenStackIndex = blockTokenStackIndex - 1
+		  //
+		  // Append the EndBlockToken, if we can
+		  //
+		  if startDocumentToken isa M_Token.BeginBlockToken then
+		    var bbt as M_Token.BeginBlockToken = M_Token.BeginBlockToken( startDocumentToken )
+		    var endToken as M_Token.EndBlockToken = bbt.GetCorrespondingEndBlockToken
+		    if endToken isa object then
+		      //
+		      // Make sure this makes sense
+		      //
+		      if blockTokenStackIndex <> 0 then
+		        raise new TokenizerException( "Unmatched begin and end tokens" )
 		      end if
 		      
+		      endToken.BytePosition = position
+		      tokens.AddRow endToken
+		      
+		      //
+		      // Call the interpreter
+		      //
+		      if interpreter isa object then
+		        interpreter.Interpret tokens, 0, mb
+		      end if
+		      
+		      blockTokenStackIndex = blockTokenStackIndex - 1
 		    end if
-		    
+		  end if
+		  
+		  if interpreter isa object and tokens.Count <> 0 then
 		    //
 		    // Final wrap up call
 		    //
