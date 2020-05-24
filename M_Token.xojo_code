@@ -287,7 +287,7 @@ Protected Module M_Token
 		      end if
 		      
 		      if interpreter isa object then
-		        interpreter.Interpret tokens, beginBlockIndexes( blockTokenStackIndex )
+		        interpreter.Interpret tokens, beginBlockIndexes( blockTokenStackIndex ), tag
 		      end if
 		      
 		      blockTokenStackIndex = blockTokenStackIndex - 1
@@ -332,7 +332,7 @@ Protected Module M_Token
 		      // Call the interpreter
 		      //
 		      if interpreter isa object then
-		        interpreter.Interpret tokens, 0
+		        interpreter.Interpret tokens, 0, tag
 		      end if
 		      
 		      blockTokenStackIndex = blockTokenStackIndex - 1
@@ -343,7 +343,7 @@ Protected Module M_Token
 		    //
 		    // Final wrap up call
 		    //
-		    interpreter.Interpret tokens, -1
+		    interpreter.Interpret tokens, -1, tag
 		  end if
 		  
 		  return tokens
