@@ -53,6 +53,7 @@ Class=GroupEndToken;Unit Tests/Calc/GroupEndToken.xojo_code;&h00000000721B8FFF;&
 Class=NumberToken;Unit Tests/Calc/NumberToken.xojo_code;&h000000002747DFFF;&h0000000051FA2FFF;false
 Class=OperatorToken;Unit Tests/Calc/OperatorToken.xojo_code;&h0000000013A3F7FF;&h0000000051FA2FFF;false
 Class=Interpreter;Unit Tests/Calc/Interpreter.xojo_code;&h00000000581907FF;&h0000000051FA2FFF;false
+Interface=PrivateTokenInterface;M_Token/PrivateTokenInterface.xojo_code;&h000000006DBD27FF;&h0000000039E237FF;false
 DefaultWindow=XojoUnitTestWindow
 AppMenuBar=MainMenuBar
 MajorVersion=1

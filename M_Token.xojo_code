@@ -259,7 +259,7 @@ Protected Module M_Token
 		  while position < mbSize 
 		    var startingPos as integer = position
 		    var previousToken as M_Token.Token = currentToken // Lets us see the value in the debugger
-		    currentToken = previousToken.GetNextToken( mb, p, position, context, tokens, tag )
+		    currentToken = PrivateTokenInterface( previousToken ).GetNextToken( mb, p, position, context, tokens, tag )
 		    
 		    if currentToken is nil then
 		      //
