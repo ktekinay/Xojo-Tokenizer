@@ -316,7 +316,7 @@ Protected Module M_Token
 		  //
 		  if startDocumentToken isa M_Token.BeginBlockToken then
 		    var bbt as M_Token.BeginBlockToken = M_Token.BeginBlockToken( startDocumentToken )
-		    var endToken as M_Token.EndBlockToken = bbt.GetCorrespondingEndBlockToken
+		    var endToken as M_Token.EndBlockToken = PrivateBeginBlockTokenInterface( bbt ).GetCorrespondingEndBlockToken
 		    if endToken isa object then
 		      //
 		      // Make sure this makes sense

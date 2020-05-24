@@ -1,8 +1,9 @@
 #tag Class
 Protected Class BeginBlockToken
 Inherits M_Token.Token
-	#tag Method, Flags = &h0
-		Function GetCorrespondingEndBlockToken() As M_Token.EndBlockToken
+Implements M_Token.PrivateBeginBlockTokenInterface
+	#tag Method, Flags = &h21
+		Private Function GetCorrespondingEndBlockToken() As M_Token.EndBlockToken
 		  return RaiseEvent CorrespondingEndBlockToken
 		End Function
 	#tag EndMethod
