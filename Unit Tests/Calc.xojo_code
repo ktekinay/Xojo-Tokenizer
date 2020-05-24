@@ -31,18 +31,22 @@ Protected Module Calc
 
 	#tag Method, Flags = &h21
 		Private Function ParseOperator(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As OperatorToken
+		  static operatorsArr() as string = kOperators.Trim.ReplaceLineEndings( &uA ).Split( &uA )
+		  
 		  var operator as string = String.ChrByte( p.Byte( bytePos ) )
 		  
-		  select case operator
-		  case "+", "-", "*", "/"
+		  if operatorsArr.IndexOf( operator ) <> -1 then
 		    var t as new OperatorToken( bytePos, operator )
 		    bytePos = bytePos + 1
 		    M_Token.AdvancePastWhiteSpace( mb, p, bytePos )
 		    return t
-		  end select
-		  
+		  end if
 		End Function
 	#tag EndMethod
+
+
+	#tag Constant, Name = kOperators, Type = String, Dynamic = False, Default = \"*\n/\n+\n-", Scope = Private
+	#tag EndConstant
 
 
 	#tag ViewBehavior

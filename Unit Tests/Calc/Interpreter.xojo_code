@@ -57,13 +57,26 @@ Inherits M_Token.Interpreter
 		  //
 		  // Cycle through the tokens in this group and convert it to a value
 		  //
-		  var operators() as string = array( "*", "/", "+", "-" ) // In order of priority
+		  static operators() as string = kOperators.Trim.ReplaceLineEndings( &uA ).Split( &uA ) // In order of priority
 		  for each operator as string in operators
 		    for i as integer = endIndex downto startIndex step 2
-		      var op as string = tokens( i ).Value
+		      var op as string
+		      var opToken as OperatorToken
+		      var prevNumToken as NumberToken
+		      var nextNumToken as NumberToken
+		      
+		      try
+		        opToken = OperatorToken( tokens( i ) )
+		        prevNumToken = NumberToken( tokens( i - 1 ) )
+		        nextNumToken = NumberToken( tokens( i + 1 ) )
+		      catch err as IllegalCastException
+		        raise new M_Token.TokenizerException( "Illegal value somewhere after " + tokens( beginBlockIndex ).BytePosition.ToString )
+		      end try
+		      
+		      op = tokens( i ).Value
 		      if op = operator then
-		        var previousNumber as double = tokens( i - 1 ).Value
-		        var nextNumber as double = tokens( i + 1 ).Value
+		        var previousNumber as double = prevNumToken.Value
+		        var nextNumber as double = nextNumToken.Value
 		        var thisValue as double
 		        select case operator
 		        case "*"

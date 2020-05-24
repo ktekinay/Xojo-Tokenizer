@@ -85,6 +85,14 @@ Inherits TestGroup
 		    Assert.Pass
 		  end try
 		  
+		  try
+		    s = "1 \ 2"
+		    call Calc.Evaluate( s )
+		    Assert.Fail s.ToText
+		  catch err as M_Token.TokenizerException
+		    Assert.Pass
+		  end try
+		  
 		  #pragma BreakOnExceptions default 
 		  
 		End Sub
