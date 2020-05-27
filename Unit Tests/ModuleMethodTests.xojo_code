@@ -2,6 +2,43 @@
 Protected Class ModuleMethodTests
 Inherits TestGroup
 	#tag Method, Flags = &h0
+		Sub AdvancePastBytesTest()
+		  var bytePos as integer
+		  var mb as MemoryBlock
+		  var skips() as integer
+		  
+		  mb = new MemoryBlock( 0 )
+		  bytePos = 0
+		  skips.RemoveAllRows
+		  skips.AddRow 32 // Just to have something
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  Assert.AreEqual 0, bytePos
+		  
+		  mb = "123"
+		  bytePos = 0
+		  skips.RemoveAllRows
+		  M_Token.AdvancePastBytes mb, mb, bytePos, skips
+		  Assert.AreEqual 0, bytePos
+		  
+		  mb = "123"
+		  bytePos = 0
+		  skips.RemoveAllRows
+		  skips.AddRow CharToByte( "0" )
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  Assert.AreEqual 0, bytePos, "Byte that doesn't exist"
+		  
+		  skips.AddRow CharToByte( "1" )
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  Assert.AreEqual 1, bytePos, "1"
+		  
+		  skips.AddRow CharToByte( "2" )
+		  bytePos = 0
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  Assert.AreEqual 2, bytePos, "1,2"
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
 		Sub AdvancePastSpacesAndTabsTest()
 		  var bytePos as integer
 		  var mb as MemoryBlock
@@ -105,6 +142,13 @@ Inherits TestGroup
 		  next
 		  
 		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h21
+		Private Function CharToByte(char As String) As Integer
+		  return char.AscByte
+		  
+		End Function
 	#tag EndMethod
 
 	#tag Method, Flags = &h0

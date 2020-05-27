@@ -1,6 +1,30 @@
 #tag Module
 Protected Module M_Token
 	#tag Method, Flags = &h1
+		Protected Sub AdvancePastBytes(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, skipBytes() As Integer)
+		  //
+		  // A convenience method to skip past specific bytes
+		  //
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  if bytePos >= mb.Size or skipBytes.Count = 0 then
+		    return
+		  end if
+		  
+		  while bytePos < mb.Size and skipBytes.IndexOf( p.Byte( bytePos ) ) <> -1
+		    bytePos = bytePos + 1
+		  wend
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Sub AdvancePastSpacesAndTabs(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer)
 		  //
 		  // A convenience method to advance past spaces and tabs
