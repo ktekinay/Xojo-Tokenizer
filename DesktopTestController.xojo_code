@@ -12,6 +12,7 @@ Inherits TestController
 		  
 		  group = new CalcTests( self, "Calc" )
 		  group = new JSONTests( self, "JSON" )
+		  group = new ModuleMethodTests( self, "Module Methods" )
 		  group = new NumberTokenizerTests( self, "NumberTokenizer" )
 		  
 		End Sub

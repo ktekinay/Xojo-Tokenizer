@@ -57,6 +57,54 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Sub AdvanceToNextLine(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer)
+		  //
+		  // A convenience method to advance to the next line as defined by
+		  // an EOL character
+		  //
+		  // Will leave the bytePos at the next position after the EOL
+		  //
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  //
+		  // Get to the EOL
+		  //
+		  while bytePos < mb.Size
+		    select case p.Byte( bytePos )
+		    case kLinefeed, kLinefeed
+		      bytePos = bytePos + 1
+		      exit while
+		      
+		    case else
+		      bytePos = bytePos + 1
+		      
+		    end select
+		  wend
+		  
+		  //
+		  // Get past the EOL
+		  //
+		  while bytePos < mb.Size
+		    select case p.Byte( bytePos )
+		    case kLinefeed, kReturn
+		      bytePos = bytePos + 1
+		      
+		    case else
+		      return
+		      
+		    end select
+		  wend
+		  
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function ExtractNumber(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer) As Variant
 		  #if not DebugBuild
 		    #pragma BackgroundTasks false
@@ -64,6 +112,12 @@ Protected Module M_Token
 		    #pragma NilObjectChecking false
 		    #pragma StackOverflowChecking false
 		  #endif
+		  
+		  var mbSize as integer = mb.Size
+		  
+		  if bytePos >= mbSize then
+		    return nil
+		  end if
 		  
 		  const zero as byte = 48
 		  const nine as byte = 57
@@ -80,14 +134,15 @@ Protected Module M_Token
 		  var foundDecimal as boolean
 		  var foundE as boolean
 		  var foundSN as boolean
+		  var ePos as integer 
 		  
 		  if p.Byte( bytePos ) = minus then
 		    bytePos = bytePos + 1
 		  elseif p.Byte( bytePos ) = plus then
 		    bytePos = bytePos + 1
+		    startingPos = bytePos
 		  end if
 		  
-		  var mbSize as integer = mb.Size
 		  
 		  //
 		  // Look for integer portion
@@ -117,6 +172,7 @@ Protected Module M_Token
 		    ( foundDigits or foundDecimal ) and _
 		    ( p.Byte( bytePos ) = e or p.Byte( bytePos ) = eCap ) then
 		    foundE = true
+		    ePos = bytePos
 		    bytePos = bytePos + 1
 		    
 		    if bytePos < mbSize and ( p.Byte( bytePos ) = minus or p.Byte( bytePos ) = plus ) then
@@ -136,10 +192,11 @@ Protected Module M_Token
 		    //
 		    // Improper scientific notation
 		    //
-		    bytePos = startingPos
-		    return nil
-		    
-		  elseif not foundDigits and not foundDecimal then
+		    bytePos = ePos
+		    foundE = false
+		  end if
+		  
+		  if not foundDigits and not foundDecimal then
 		    //
 		    // Didn't identify a proper number
 		    //
@@ -168,6 +225,65 @@ Protected Module M_Token
 	#tag EndMethod
 
 	#tag Method, Flags = &h1
+		Protected Function NextLine(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, enc As TextEncoding = Nil) As String
+		  //
+		  // Reads the upcoming line from the current bytePos
+		  // and leaves bytePos at the start of the next line
+		  //
+		  //
+		  
+		  #if not DebugBuild
+		    #pragma BackgroundTasks false
+		    #pragma BoundsChecking false
+		    #pragma NilObjectChecking false
+		    #pragma StackOverflowChecking false
+		  #endif
+		  
+		  if bytePos >= mb.Size then
+		    return ""
+		  end if
+		  
+		  if enc is nil then
+		    enc = Encodings.UTF8
+		  end if
+		  
+		  //
+		  // Make sure we are at the start of the line
+		  //
+		  if p.Byte( bytePos ) = kReturn or p.Byte( bytePos ) = kLinefeed then
+		    AdvanceToNextLine( mb, p, bytePos )
+		  end if
+		  
+		  var result as string
+		  
+		  var startingPos as integer = bytePos
+		  var endingPos as integer = startingPos
+		  
+		  while bytePos < mb.Size
+		    select case p.Byte( bytePos )
+		    case kReturn, kLinefeed
+		      endingPos = bytePos
+		      AdvanceToNextLine( mb, p, bytePos )
+		      exit while
+		      
+		    case else
+		      bytePos = bytePos + 1
+		      endingPos = bytePos // In case we run out of bytes before the EOL
+		      
+		    end select
+		  wend
+		  
+		  var length as integer = endingPos - startingPos
+		  if length <> 0 then
+		    result = mb.StringValue( startingPos, length, enc )
+		  end if
+		  
+		  return result
+		  
+		End Function
+	#tag EndMethod
+
+	#tag Method, Flags = &h1
 		Protected Function NextWord(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, enc As TextEncoding = Nil) As String
 		  //
 		  // Convenience function to return the next series of bytes as a string
@@ -185,6 +301,11 @@ Protected Module M_Token
 		    enc = Encodings.UTF8
 		  end if
 		  
+		  //
+		  // If this is already whitespace, get past it
+		  //
+		  AdvancePastWhiteSpace( mb, p, bytePos )
+		  
 		  var startingPos as integer = bytePos
 		  
 		  while bytePos <  mb.Size
@@ -197,6 +318,11 @@ Protected Module M_Token
 		      bytePos = bytePos + 1
 		      continue while
 		    end select
+		    
+		    //
+		    // We found whitespace
+		    //
+		    exit while
 		  wend
 		  
 		  var length as integer = bytePos - startingPos
