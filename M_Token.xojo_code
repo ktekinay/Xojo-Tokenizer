@@ -251,8 +251,8 @@ Protected Module M_Token
 	#tag Method, Flags = &h1
 		Protected Function NextLine(mb As MemoryBlock, p As Ptr, ByRef bytePos As Integer, enc As TextEncoding = Nil) As String
 		  //
-		  // Reads the upcoming line from the current bytePos
-		  // and leaves bytePos at the start of the next line
+		  // Reads the upcoming line from next non-EOL
+		  // and leaves bytePos at the next EOL character
 		  //
 		  //
 		  
@@ -281,23 +281,19 @@ Protected Module M_Token
 		  var result as string
 		  
 		  var startingPos as integer = bytePos
-		  var endingPos as integer = startingPos
 		  
 		  while bytePos < mb.Size
 		    select case p.Byte( bytePos )
 		    case kReturn, kLinefeed
-		      endingPos = bytePos
-		      AdvanceToNextLine( mb, p, bytePos )
 		      exit while
 		      
 		    case else
 		      bytePos = bytePos + 1
-		      endingPos = bytePos // In case we run out of bytes before the EOL
 		      
 		    end select
 		  wend
 		  
-		  var length as integer = endingPos - startingPos
+		  var length as integer = bytePos - startingPos
 		  if length <> 0 then
 		    result = mb.StringValue( startingPos, length, enc )
 		  end if
