@@ -5,35 +5,23 @@ Inherits TestGroup
 		Sub AdvancePastBytesTest()
 		  var bytePos as integer
 		  var mb as MemoryBlock
-		  var skips() as integer
 		  
 		  mb = new MemoryBlock( 0 )
 		  bytePos = 0
-		  skips.RemoveAllRows
-		  skips.AddRow 32 // Just to have something
-		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, 32 )
 		  Assert.AreEqual 0, bytePos
 		  
 		  mb = "123"
 		  bytePos = 0
-		  skips.RemoveAllRows
-		  M_Token.AdvancePastBytes mb, mb, bytePos, skips
-		  Assert.AreEqual 0, bytePos
-		  
-		  mb = "123"
-		  bytePos = 0
-		  skips.RemoveAllRows
-		  skips.AddRow CharToByte( "0" )
-		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, CharToByte( "0" ) )
 		  Assert.AreEqual 0, bytePos, "Byte that doesn't exist"
 		  
-		  skips.AddRow CharToByte( "1" )
-		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  bytePos = 0
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, CharToByte( "0" ), CharToByte( "1" ) )
 		  Assert.AreEqual 1, bytePos, "1"
 		  
-		  skips.AddRow CharToByte( "2" )
 		  bytePos = 0
-		  M_Token.AdvancePastBytes( mb, mb, bytePos, skips )
+		  M_Token.AdvancePastBytes( mb, mb, bytePos, CharToByte( "0" ), CharToByte( "1" ), CharToByte( "2" ) )
 		  Assert.AreEqual 2, bytePos, "1,2"
 		End Sub
 	#tag EndMethod
@@ -115,6 +103,49 @@ Inherits TestGroup
 		  bytePos = mb.Size
 		  M_Token.AdvancePastWhiteSpace( mb, mb, bytePos )
 		  Assert.AreEqual mb.Size, bytePos, "Past last word"
+		End Sub
+	#tag EndMethod
+
+	#tag Method, Flags = &h0
+		Sub AdvanceTillBytesTest()
+		  var bytePos as integer
+		  var mb as MemoryBlock
+		  
+		  mb = new MemoryBlock( 0 )
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, 32 )
+		  Assert.AreEqual 0, bytePos
+		  
+		  mb = "123"
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "0" ) )
+		  Assert.AreEqual mb.Size, bytePos, "Byte that doesn't exist"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "1" ), CharToByte( "0" ) )
+		  Assert.AreEqual 0, bytePos, "1,0"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "0" ), CharToByte( "1" ) )
+		  Assert.AreEqual 0, bytePos, "0,1"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "2" ), CharToByte( "1" ) )
+		  Assert.AreEqual 0, bytePos, "2,1"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "1" ), CharToByte( "2" ) )
+		  Assert.AreEqual 0, bytePos, "1,2"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "2" ), CharToByte( "3" ) )
+		  Assert.AreEqual 1, bytePos, "2,3"
+		  
+		  bytePos = 0
+		  M_Token.AdvanceTillBytes( mb, mb, bytePos, CharToByte( "3" ), CharToByte( "2" ) )
+		  Assert.AreEqual 1, bytePos, "3,2"
+		  
+		  
 		End Sub
 	#tag EndMethod
 
